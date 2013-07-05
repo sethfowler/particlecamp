@@ -8,11 +8,11 @@ app = Flask(__name__)
 
 # Some fake data. Eventually this will come from CSV.
 data = [
-    [10, 10, 5 ],
-    [12, 15, 6 ],
-    [14, 13, 11],
-    [11, 9,  10],
-    [8,  5,  3 ],
+    {'freq': 150, 'size': 0.01},
+    {'freq': 350, 'size': 0.1},
+    {'freq': 50,  'size': 0.5},
+    {'freq': 500, 'size': 1.0},
+    {'freq': 200, 'size': 2.0},
   ]
 
 @app.route('/')
