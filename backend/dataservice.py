@@ -9,23 +9,19 @@ class SensorReader(Thread):
 	"""serPort is a pyserial serial port object
 	rowType is a tuple of columnName,type pairs. Implicitly the first entry is "time",int and so avgRow is required to return a type of (int,) + rowType. Valid types are float,int,str,bytes. For strings using a db without arbitrary length strings use bytes.
 	rateSec is the data polling rate the maximum rate that will be returned.
-	log is a file handle where data will be pushed to.
+	log is a file handle where data will be logged to.
 	db is an sqlalchemy database engine connection. See: http://docs.sqlalchemy.org/en/rel_0_5/sqlexpression.html and http://docs.sqlalchemy.org/en/rel_0_8/core/connections.html
 	"""
-	def __init__(self,commParms,sensorName,rowType = (),rateSec=60,sessionID = None,db=None,log=None):
+	def __init__(self,commConfig,sensorName,rowType = (),rateSec=60,db=None,log=None):
 		Thread.__init__(self)
 		self.setName(sensorName)
-		self.commParms = commParms 
+		self.commConfig = commConfig 
 		self.rateSec = rateSec
 		self.db = db
-		self.log = log
 		self.sensorName = sensorName
-		self.end = False
 		self.rowType = (("time",int),) + rowType
-		if not sessionID:
-			self.sessionID = uuid4()
-		else:
-			self.sessionID = sessionID
+		self.log = log
+		self.end = False
 
 	def run(self):
 		while(not self.end):
@@ -36,7 +32,7 @@ class SensorReader(Thread):
 				avgRows = self.avgRows(rows)
 				timeStamp = asctime(localtime())
 				logEntry = ",".join(
-						[str(self.sessionID),timeStamp, "\"%s\""%repr(avgRows)] + readingsStr) +"\n"
+						[timeStamp, "\"%s\""%repr(avgRows)] + readingsStr) +"\n"
 				if self.log:
 						  self.log.write(logEntry)
 				stdout.flush()
@@ -59,7 +55,7 @@ class SensorReader(Thread):
 		self.join()
 		self.stopSensor()
 		if self.log:
-			self.log.close()
+			self.log.flush()
 
 	def toDBType(self,ty):
 		if ty == int:
@@ -89,7 +85,7 @@ class SensorReader(Thread):
 	"""Called by stop after collection has ended."""
 	def stopSensor(self):
 		pass
-	"""Returns raw readings gather from sensor. Later on will be converted to rows by a call to toRow. Must return a list of readings."""
+	"""Returns raw readings gather from sensor. Later on will be converted to rows by a call to toRow. Must return a list of readings. This function should be responsible for synchronizing with the sensor. The rate value really just indicates how frequently to call this function and attempt at retriving a value."""
 	def getReadings(self):
 		return [asctime(localtime())]
 	"""Must return a tuple following the type of rowType in __init__"""
@@ -103,27 +99,46 @@ class SensorReader(Thread):
 		row = strptime(reading)
 		return (int(mktime(row)),)
 		
+#might want to make this a threadsafe interrupt driven reader
 class SerialSensorReader(SensorReader):
-	def __init__(self,commParms,sensorName,rowType = (),rateSec=60,sessionID = None,db=None,log=None):
-		SensorReader.__init__(self,commParms,sensorName,rowType,rateSec,sessionID,db,log)
+	def __init__(self,commConfig,sensorName,rowType=(),rateSec=60,db=None,log=None):
+		SensorReader.__init__(self,commConfig,sensorName,rowType,rateSec,db,log)
+		self.eol = "\n"
 	def initSensor(self):
 		from serial import Serial
-		self.serialP = Serial(**self.commParms) 
+		self.serialP = Serial(**self.commConfig) 
 		self.serialP.flushInput()
 	def stopSensor(self):
 		self.serialP.close()
-	def getReadings(self,eol="\n"):
+	def getReadings(self):
 		readings = []
 		while self.serialP.inWaiting():
-			readings.append(self.serialP.readline(eol=eol))
+			readings.append(self.serialP.readline(eol=self.eol))
 		return readings
 	def toRow(self, reading):
+		row = reading.split(",")
+		return row
+#Since time is the primary key, I need a sensor ID to identify each sensor. 
+#That can be the sensorname, but in that case the calling program, which will be giving out pointers
+#will have to be aware of sensor ids. That makes sense since why should a data management program worry about metadata
+#The sensor id can be unique and another table should be the one managing the type and name of the sensor.
+#Since I'll likely be reading redundant data I'll need to not update if the primary key, time, is already in the table.
+class FileSensorReader(SensorReader):
+	def __init__(self):
+		pass
+	def initSensor(self):
+		pass
+	def stopSensor(self):
+		pass
+	def getReadings(self):
+		pass
+	def toRow(self,reading):
 		pass
 
 if __name__ == "__main__":
 	try:
 		db = sq.create_engine('sqlite:///:memory:', echo=True)
-		sr = SensorReader("COM1","Test2",(),1,None,db,stdout)
+		sr = SensorReader("COM1","Test2",(),1,db,stdout)
 		sr.startCollection()
 		sleep(100)
 		sr.stop()
@@ -136,3 +151,4 @@ if __name__ == "__main__":
 #fix it so that avgRow only deals with one averaged collection of readings per time interval
 #getReadings returns all readings with a timestamp for each?
 #then we only return the readings for one time interval?
+#todo create metadatatable with sensor id, type, and name.
