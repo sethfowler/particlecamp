@@ -113,7 +113,7 @@ class SerialSensorReader(SensorReader):
 	def getReadings(self):
 		readings = []
 		while self.serialP.inWaiting():
-			readings.append(self.serialP.readline(eol=self.eol))
+			readings.append(self.serialP.readline())
 		return readings
 	def toRow(self, reading):
 		row = reading.split(",")
