@@ -47,20 +47,13 @@ def main():
 		commConfig = {'port':cfg.get(curSensor,'port'),'timeout':cfg.getint('global','timeout'),
 				'bytesize':7,'parity':'N'}
 		logFile = mklogfile(curSensor)
-		rowType = (('aeth_date',str),
-				('aeth_time',str),
-				('black_carbon',int),
-				('a',float),
-				('b',float),
-				('c',float),
-				('d',float),
-				('e',float),
-				('f',float),
-				('g',float))
+		rowType = (('aeth_date',str),('aeth_time',str),('black_carbon',int),('a',float),('b',float),
+			('c',float),('d',float),('e',float),('f',float),('g',float))
 		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=None,log=logFile)
 		sensors[curSensor].delimiterPattern = "[^,]+"#"[\d.-e]+"
 		sensors[curSensor].delimiter = ","
-	if sensors_present.get('dustrack'):
+	curSensor ='dustrack' 
+	if sensors_present.get(curSensor):
 		pass
 	curSensor ='neph' 
 	if sensors_present.get(curSensor):
@@ -70,8 +63,15 @@ def main():
 		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=None,log=logFile)
 	if sensors_present.get('metone'):
 		pass
+	curSensor ='ucpc' 
 	if sensors_present.get('ucpc'):
-		pass
+		commConfig = {'port':cfg.get(curSensor,'port'),'timeout':cfg.getint('global','timeout'),'baudrate':115200}
+		logFile = mklogfile(curSensor)
+		rowType = (('day',str),('time',str),('UNK1',int),('CN',float),('ST',int),('LT',float),('CNT',int),('PM',int),('RP',int))
+		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=None,log=logFile)
+		sensors[curSensor].delimiterPattern = "[^,]+"#"[\d.-e]+"
+		sensors[curSensor].delimiter = ","
+		sensors[curSensor].eol = "\r"
 	if sensors_present.get('vueiss'):
 		pass
 
@@ -79,7 +79,7 @@ def main():
 		print sensors
 		for name,sensor in sensors.iteritems():
 			sensor.startCollection()
-		time.sleep(120)
+		time.sleep(241)
 	except KeyboardInterrupt:
 		print "Exiting"	
 	for name,sensor in sensors.iteritems():

@@ -7,6 +7,23 @@ from exceptions import ValueError
 import sqlite3
 import re
 import pandas
+
+def readlineR(ser,delim):
+	line = ""
+	start = time()
+	waiting = True
+	while(waiting):
+		if ser.inWaiting():
+			c = ser.read(1)
+			line = line + c
+			waiting = not line.endswith(delim)
+			start = time()
+		else:
+			sleep(1.0/ser.baudrate)
+			waiting = time()-start < ser.timeout
+			if not waiting: line = None
+	return line
+
 class SensorReader(Thread):
 	"""serPort is a pyserial serial port object
 	rowType is a tuple of columnName,type pairs. Implicitly the first entry is "time",int and so avgRow is required to return a type of (int,) + rowType. Valid types are float,int,str,bytes. For strings using a db without arbitrary length strings use bytes.
@@ -121,17 +138,18 @@ class SerialSensorReader(SensorReader):
 		readings = []
 		ts = str((int(time())/self.rateSec)*self.rateSec)
 		while self.serialP.inWaiting():
-			line = self.serialP.readline()
+			line = readlineR(self.serialP,self.eol)
 			readings.append(self.delimiter.join([ts, line]))
 		readings = [x for x in readings if x != None]
 		return readings
 
 	def avgRows(self, readings):
+		print readings
+		readings = [r for r in readings if len(r) == len(self.rowType)]
+		readings = [[t(c) for t,c in zip(zip(*self.rowType)[1],r)] for r in readings]
 		if not readings: 
 			return None
 		else:
-			readings = [r for r in readings if len(r) == len(self.rowType)]
-			readings = [[t(c) for t,c in zip(zip(*self.rowType)[1],r)] for r in readings]
 			strings = readings[0]
 			avg = list(pandas.DataFrame(readings,columns=zip(*self.rowType)[0]).mean())
 			output = []
@@ -150,7 +168,7 @@ class SerialSensorReader(SensorReader):
 		return row
 	def resetSensor(self):
 		print "Reseting Sensor"
-		self.serialP.readline()
+		readlineR(self.serialP,self.eol)
 		return None
 
 #Since time is the primary key, I need a sensor ID to identify each sensor. 

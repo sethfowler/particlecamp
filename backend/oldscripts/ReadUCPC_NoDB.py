@@ -39,6 +39,7 @@ def readlineR(ser):
 readlineR(ser)  #clear buffer
 while 1:    
     LineArray = readlineR(ser).split(",")
+    print LineArray
     timeStr = time.strftime("%Y-%m-%d %H:%M:%S")
     toFile = ",".join( [INSTR,timeStr] + LineArray[2:] )
     OutputFile.write(toFile+"\n")
