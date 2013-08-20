@@ -79,7 +79,7 @@ def main():
 		print sensors
 		for name,sensor in sensors.iteritems():
 			sensor.startCollection()
-		time.sleep(241)
+		time.sleep(60*60*4)
 	except KeyboardInterrupt:
 		print "Exiting"	
 	for name,sensor in sensors.iteritems():
