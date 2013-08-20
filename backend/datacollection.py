@@ -58,29 +58,28 @@ def main():
 				('f',float),
 				('g',float))
 		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=None,log=logFile)
-		print '%s online'%curSensor
+		sensors[curSensor].delimiterPattern = "[^,]+"#"[\d.-e]+"
+		sensors[curSensor].delimiter = ","
 	if sensors_present.get('dustrack'):
-		print 'dustrack online'
+		pass
 	curSensor ='neph' 
 	if sensors_present.get(curSensor):
 		commConfig = {'port':cfg.get(curSensor,'port'),'timeout':cfg.getint('global','timeout')}
 		logFile = mklogfile(curSensor)
-		rowType = (('bscat_m_1',float),('calibcoef',float),('preassure_mb',int),('temp_K',int),('RH_percent',int),('relay_status',int))
-		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=5,db=None,log=logFile)
-		sensors[curSensor].delim = " "
-		print '%s online'%curSensor
+		rowType = (('bscat_m_1',float),('calibcoef',float),('preassure_mb',float),('temp_K',int),('RH_percent',int),('relay_status',int))
+		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=None,log=logFile)
 	if sensors_present.get('metone'):
-		print 'metone online'
+		pass
 	if sensors_present.get('ucpc'):
-		print 'ucpc online'
+		pass
 	if sensors_present.get('vueiss'):
-		print 'vueiss online'
+		pass
 
 	try:
 		print sensors
 		for name,sensor in sensors.iteritems():
 			sensor.startCollection()
-		time.sleep(60)
+		time.sleep(120)
 	except KeyboardInterrupt:
 		print "Exiting"	
 	for name,sensor in sensors.iteritems():

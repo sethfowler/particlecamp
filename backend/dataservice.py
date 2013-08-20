@@ -130,11 +130,22 @@ class SerialSensorReader(SensorReader):
 		if not readings: 
 			return None
 		else:
-			readings = [[float(c) for c in r] for r in readings]
-			return list(pandas.DataFrame(readings).mean())
+			readings = [r for r in readings if len(r) == len(self.rowType)]
+			readings = [[t(c) for t,c in zip(zip(*self.rowType)[1],r)] for r in readings]
+			strings = readings[0]
+			avg = list(pandas.DataFrame(readings,columns=zip(*self.rowType)[0]).mean())
+			output = []
+			numCol = 0
+			for col in xrange(0,len(strings)):
+				if type(strings[col]) == str:
+					output.append(strings[col])
+				else:
+					output.append(avg[numCol])
+					numCol = numCol + 1
+			return output
 
 	def toRow(self, reading):
-		row = reading.strip().split()
+		print reading
 		row = re.findall(self.delimiterPattern,reading.strip())
 		return row
 	def resetSensor(self):
