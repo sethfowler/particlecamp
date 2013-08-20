@@ -5,6 +5,8 @@ from sys import stdout
 import sqlalchemy as sq
 from exceptions import ValueError
 import sqlite3
+import re
+import pandas
 class SensorReader(Thread):
 	"""serPort is a pyserial serial port object
 	rowType is a tuple of columnName,type pairs. Implicitly the first entry is "time",int and so avgRow is required to return a type of (int,) + rowType. Valid types are float,int,str,bytes. For strings using a db without arbitrary length strings use bytes.
@@ -29,6 +31,7 @@ class SensorReader(Thread):
 				readings = self.getReadings()
 				readingsStr = ["\"%s\""%repr(reading) for reading in readings]
 				rows = [self.toRow(reading) for reading in readings]
+				#ADD typecheck here and reset if there is a problem
 				avgRows = self.avgRows(rows)
 				timeStamp = asctime(localtime())
 				logEntry = ",".join(
@@ -98,26 +101,47 @@ class SensorReader(Thread):
 	def toRow(self,reading):
 		row = strptime(reading)
 		return (int(mktime(row)),)
+	def resetSensor(self):
+		return None
 		
 #might want to make this a threadsafe interrupt driven reader
 class SerialSensorReader(SensorReader):
 	def __init__(self,commConfig,sensorName,rowType=(),rateSec=60,db=None,log=None):
 		SensorReader.__init__(self,commConfig,sensorName,rowType,rateSec,db,log)
 		self.eol = "\n"
+		self.delimiterPattern = "\\S+"
+		self.delimiter = " "
 	def initSensor(self):
 		from serial import Serial
 		self.serialP = Serial(**self.commConfig) 
-		self.serialP.flushInput()
+		self.resetSensor()
 	def stopSensor(self):
 		self.serialP.close()
 	def getReadings(self):
 		readings = []
+		ts = str((int(time())/self.rateSec)*self.rateSec)
 		while self.serialP.inWaiting():
-			readings.append(self.serialP.readline())
+			line = self.serialP.readline()
+			readings.append(self.delimiter.join([ts, line]))
+		readings = [x for x in readings if x != None]
 		return readings
+
+	def avgRows(self, readings):
+		if not readings: 
+			return None
+		else:
+			readings = [[float(c) for c in r] for r in readings]
+			return list(pandas.DataFrame(readings).mean())
+
 	def toRow(self, reading):
-		row = reading.split(",")
+		row = reading.strip().split()
+		row = re.findall(self.delimiterPattern,reading.strip())
 		return row
+	def resetSensor(self):
+		print "Reseting Sensor"
+		self.serialP.readline()
+		return None
+
 #Since time is the primary key, I need a sensor ID to identify each sensor. 
 #That can be the sensorname, but in that case the calling program, which will be giving out pointers
 #will have to be aware of sensor ids. That makes sense since why should a data management program worry about metadata

@@ -35,7 +35,6 @@ def main():
 		print "Creating: \'%s\'"%logdir
 		makedirs(logdir)
 	session_id = cfg.get("global","session_id")
-	#print cfg.items("sensors_present")
 	sensors_present = {}
 	sensors_present.setdefault(False)
 	for name,x in cfg.items("sensors_present"):
@@ -44,7 +43,6 @@ def main():
 	sensors = {}
 
 	curSensor = 'aeth'
-	#print sensors_present
 	if sensors_present.get(curSensor):
 		commConfig = {'port':cfg.get(curSensor,'port'),'timeout':cfg.getint('global','timeout'),
 				'bytesize':7,'parity':'N'}
@@ -69,6 +67,7 @@ def main():
 		logFile = mklogfile(curSensor)
 		rowType = (('bscat_m_1',float),('calibcoef',float),('preassure_mb',int),('temp_K',int),('RH_percent',int),('relay_status',int))
 		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=5,db=None,log=logFile)
+		sensors[curSensor].delim = " "
 		print '%s online'%curSensor
 	if sensors_present.get('metone'):
 		print 'metone online'
@@ -77,11 +76,13 @@ def main():
 	if sensors_present.get('vueiss'):
 		print 'vueiss online'
 
-	print sensors
-	for name,sensor in sensors.iteritems():
-		sensor.startCollection()
-	time.sleep(10)
-
+	try:
+		print sensors
+		for name,sensor in sensors.iteritems():
+			sensor.startCollection()
+		time.sleep(60)
+	except KeyboardInterrupt:
+		print "Exiting"	
 	for name,sensor in sensors.iteritems():
 		sensor.stop()
 
