@@ -13,9 +13,13 @@ CFGFILE="backend.cfg"
 logdir="logs"
 session_id="noid"
 
+STDOUT = True
+
 def gettimestamp():
 	return time.strftime("%Y-%m-%d_%H-%M-%S",time.localtime())
 def mklogfile(sensorname):
+	if STDOUT:
+		return stdout
 	logpath = path.join(logdir,sensorname+gettimestamp()+".csv")
 	return open(logpath,'w+')
 def main():
@@ -31,7 +35,7 @@ def main():
 		print "Creating: \'%s\'"%logdir
 		makedirs(logdir)
 	session_id = cfg.get("global","session_id")
-	print cfg.items("sensors_present")
+	#print cfg.items("sensors_present")
 	sensors_present = {}
 	sensors_present.setdefault(False)
 	for name,x in cfg.items("sensors_present"):
@@ -40,7 +44,7 @@ def main():
 	sensors = {}
 
 	curSensor = 'aeth'
-	print sensors_present
+	#print sensors_present
 	if sensors_present.get(curSensor):
 		commConfig = {'port':cfg.get(curSensor,'port'),'timeout':cfg.getint('global','timeout'),
 				'bytesize':7,'parity':'N'}

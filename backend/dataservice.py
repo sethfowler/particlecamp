@@ -35,9 +35,10 @@ class SensorReader(Thread):
 						[timeStamp, "\"%s\""%repr(avgRows)] + readingsStr) +"\n"
 				if self.log:
 						  self.log.write(logEntry)
-				stdout.flush()
-				for row in avgRows:
-					self.dbTable.insert().values(*zip(row,zip(*self.rowType)[0]))
+						  self.log.flush()
+				if self.db:
+					for row in avgRows:
+						self.dbTable.insert().values(*zip(row,zip(*self.rowType)[0]))
 				wait = self.rateSec - time()%self.rateSec
 				sleep(wait)
 			sleep(.1)
@@ -71,7 +72,6 @@ class SensorReader(Thread):
 		if not self.db: return
 		cols = []
 		cols.append(sq.Column('time',self.toDBType(int),primary_key = True))
-		print self.rowType
 		for name,ty in self.rowType[1:]:
 			cols.append(sq.Column(name,self.toDBType(ty)))
 		metadata = sq.MetaData(bind=self.db)
