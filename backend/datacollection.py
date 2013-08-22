@@ -5,6 +5,7 @@ import time
 import sqlalchemy
 from sys import stdout
 from dataservice import SerialSensorReader
+from dataservice import MetOneSensorReader
 #In configuration file have sensors and associate log filenames
 #Have list of active sensors and directories for reading files.
 #After reading a sensor file move it to a backup directory
@@ -47,9 +48,9 @@ def main():
 		commConfig = {'port':cfg.get(curSensor,'port'),'timeout':cfg.getint('global','timeout'),
 				'bytesize':7,'parity':'N'}
 		logFile = mklogfile(curSensor)
-		rowType = (('aeth_date',str),('aeth_time',str),('black_carbon',int),('a',float),('b',float),
+		rowType = (('aeth_date',str),('aeth_time',str),('black_carbon',float),('a',float),('b',float),
 			('c',float),('d',float),('e',float),('f',float),('g',float))
-		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=None,log=logFile)
+		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=db,log=logFile)
 		sensors[curSensor].delimiterPattern = "[^,]+"#"[\d.-e]+"
 		sensors[curSensor].delimiter = ","
 	curSensor ='dustrack' 
@@ -60,15 +61,24 @@ def main():
 		commConfig = {'port':cfg.get(curSensor,'port'),'timeout':cfg.getint('global','timeout')}
 		logFile = mklogfile(curSensor)
 		rowType = (('bscat_m_1',float),('calibcoef',float),('preassure_mb',float),('temp_K',int),('RH_percent',int),('relay_status',int))
-		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=None,log=logFile)
+		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=db,log=logFile)
+	curSensor ='metone' 
 	if sensors_present.get('metone'):
-		pass
+		commConfig = {'port':cfg.get(curSensor,'port'),'timeout':cfg.getint('global','timeout')}
+		logFile = mklogfile(curSensor)
+		rowType = (('daytime',str),('0_3',int),('0_5',int),('0_7',int),('1_0',int),('2_0',int),
+				('5_0',int),('UNK0',int),('UNK1',int),('UNK2',int))
+		sensors[curSensor] = MetOneSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=10,db=db,log=logFile)
+		sensors[curSensor].delimiterPattern = "[^,]+"#"[\d.-e]+"
+		sensors[curSensor].delimiter = ","
+
+
 	curSensor ='ucpc' 
 	if sensors_present.get('ucpc'):
 		commConfig = {'port':cfg.get(curSensor,'port'),'timeout':cfg.getint('global','timeout'),'baudrate':115200}
 		logFile = mklogfile(curSensor)
-		rowType = (('day',str),('time',str),('UNK1',int),('CN',float),('ST',int),('LT',float),('CNT',int),('PM',int),('RP',int))
-		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=None,log=logFile)
+		rowType = (('dayucpc',str),('timeucpc',str),('UNK1',int),('CN',float),('ST',int),('LT',float),('CNT',int),('PM',int),('RP',int))
+		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=60,db=db,log=logFile)
 		sensors[curSensor].delimiterPattern = "[^,]+"#"[\d.-e]+"
 		sensors[curSensor].delimiter = ","
 		sensors[curSensor].eol = "\r"

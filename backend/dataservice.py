@@ -7,6 +7,7 @@ from exceptions import ValueError
 import sqlite3
 import re
 import pandas
+#TODO the delimter patterns are odd in that they reject empty comma separated values
 
 def readlineR(ser,delim):
 	line = ""
@@ -46,13 +47,13 @@ class SensorReader(Thread):
 		while(not self.end):
 			if localtime().tm_sec%self.rateSec == 0:
 				readings = self.getReadings()
-				readingsStr = ["\"%s\""%repr(reading) for reading in readings]
+				readingsStr = ["%s"%repr(reading) for reading in readings]
 				rows = [self.toRow(reading) for reading in readings]
 				#ADD typecheck here and reset if there is a problem
 				avgRows = self.avgRows(rows)
 				timeStamp = asctime(localtime())
 				logEntry = ",".join(
-						[timeStamp, "\"%s\""%repr(avgRows)] + readingsStr) +"\n"
+						[timeStamp,self.sensorName,"%s"%repr(avgRows)] + readingsStr) +"\n"
 				if self.log:
 						  self.log.write(logEntry)
 						  self.log.flush()
@@ -144,9 +145,16 @@ class SerialSensorReader(SensorReader):
 		return readings
 
 	def avgRows(self, readings):
+		readings = [r for r in readings if r != None and len(r) == len(self.rowType)]
+		readingsTyped=[]
 		print readings
-		readings = [r for r in readings if len(r) == len(self.rowType)]
-		readings = [[t(c) for t,c in zip(zip(*self.rowType)[1],r)] for r in readings]
+		for r in readings:
+			try:	
+				typed =[t(c) for t,c in zip(zip(*self.rowType)[1],r)] 
+				readingsTyped.append(typed)
+			except ValueError:
+				print "Conversion error in line:",repr(r)
+		readings = readingsTyped
 		if not readings: 
 			return None
 		else:
@@ -163,13 +171,50 @@ class SerialSensorReader(SensorReader):
 			return output
 
 	def toRow(self, reading):
-		print reading
 		row = re.findall(self.delimiterPattern,reading.strip())
+		row = [x.strip() for x in row]
 		return row
 	def resetSensor(self):
-		print "Reseting Sensor"
-		readlineR(self.serialP,self.eol)
-		return None
+		print "Reseting Sensor:" + self.sensorName
+		return readlineR(self.serialP,self.eol)
+
+class MetOneSensorReader(SerialSensorReader):
+	def __init__(self,commConfig,sensorName,rowType=(),rateSec=60,db=None,log=None):
+		SerialSensorReader.__init__(self,commConfig,sensorName,rowType,rateSec,db,log)
+	def toRow(self,reading):
+		gets = [0,1,3,5,7,9,11,13,14,15,16]
+
+		row = SerialSensorReader.toRow(self,reading)
+		print "toRow:",len(row),":",repr(row)
+		if len(row) != 17:
+			return None
+		row = [row[i] for i in gets]	
+		print "aftercut:",len(row),":",row
+		return row
+	def resetSensor(self):
+		SerialSensorReader.resetSensor(self)
+		self.serialP.flushInput()
+		seenOP = False
+		self.serialP.write("OP\r")
+		line = readlineR(self.serialP,self.eol)
+		while not seenOP:
+			print repr(line)
+			if line == "OP\r\n":
+				seenOP = True
+			line = readlineR(self.serialP,self.eol)
+		line2 = readlineR(self.serialP,self.eol).split()    #Status
+		print repr(line2)
+		if len(line2)>2 and line2[1] =='S':
+			self.serialP.write("S\r")
+		line3 = readlineR(self.serialP,self.eol).split()    #data
+		print repr(line3)
+		print "End Reset"
+		return line
+
+
+
+
+	
 
 #Since time is the primary key, I need a sensor ID to identify each sensor. 
 #That can be the sensorname, but in that case the calling program, which will be giving out pointers

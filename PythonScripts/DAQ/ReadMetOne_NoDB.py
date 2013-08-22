@@ -27,10 +27,12 @@ while 1:
     #is OP\r.  If the instrument is not logging, it will return OP S.
     #If the instrument is running, it will return OP R #.  I believe
     #the # is the number of seconds that the instrument has been running.
-    ser.write("OP\r")
+    #ser.write("OP\r")
     
     line = ser.readline()   #It sends out extra info we don't need so call twice.
+    print repr(line)
     line = ser.readline()   #This is the one we need.
+    print repr(line)
     LineArray = line.split()
     
     #Check to see if the instrument is running
@@ -41,6 +43,7 @@ while 1:
     
     line = ser.readline()
 
+    print repr(line)
     LineArray = line.split(',')
     if len(LineArray) != 20:
         continue
