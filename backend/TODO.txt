@@ -1,2 +1,0 @@
-Add reset routine if the thing keeps on timing out
-Add live view of reading rows

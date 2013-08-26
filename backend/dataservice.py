@@ -50,19 +50,22 @@ class SensorReader(Thread):
 				readingsStr = ["%s"%repr(reading) for reading in readings]
 				rows = [self.toRow(reading) for reading in readings]
 				#ADD typecheck here and reset if there is a problem
-				avgRows = self.avgRows(rows)
+				avgRow = self.avgRows(rows)
+				print self.sensorName," avgRow:",avgRow
 				timeStamp = asctime(localtime())
-				logEntry = ",".join(
-						[timeStamp,self.sensorName,"%s"%repr(avgRows)] + readingsStr) +"\n"
+				logEntry = "||".join(
+						[timeStamp,self.sensorName,"%s"%repr(avgRow)] + readingsStr) +"\n"
 				if self.log:
 						  self.log.write(logEntry)
 						  self.log.flush()
-				if self.db:
-					for row in avgRows:
-						self.dbTable.insert().values(*zip(row,zip(*self.rowType)[0]))
+				if avgRow and self.db:
+					cols = zip(*self.rowType)[0]
+					vals = zip(cols,avgRow)
+					self.dbTable.insert().values(vals)
 				wait = self.rateSec - time()%self.rateSec
 				sleep(wait)
 			sleep(.1)
+		print self.sensorName, " ending."
 
 	"""Initialized the sensor using initSensor and starts the data collection loop."""
 	def startCollection(self):
@@ -74,7 +77,8 @@ class SensorReader(Thread):
 	""" Closes all handles and synchronizes the collection end"""
 	def stop(self):
 		self.end = True
-		self.join()
+		sleep(self.rateSec+1)
+		#self.join(timeout = (self.rateSec+1))
 		self.stopSensor()
 		if self.log:
 			self.log.flush()
@@ -98,7 +102,7 @@ class SensorReader(Thread):
 		metadata = sq.MetaData(bind=self.db)
 		
 		self.dbTable = sq.Table(self.sensorName,metadata,*cols)
-		self.dbTable.create()
+		self.dbTable.create(checkfirst=True)
 
 	"""Called by startCollection to initialize the sensor and communcations."""
 	def initSensor(self):
@@ -109,12 +113,31 @@ class SensorReader(Thread):
 	"""Returns raw readings gather from sensor. Later on will be converted to rows by a call to toRow. Must return a list of readings. This function should be responsible for synchronizing with the sensor. The rate value really just indicates how frequently to call this function and attempt at retriving a value."""
 	def getReadings(self):
 		return [asctime(localtime())]
-	"""Must return a tuple following the type of rowType in __init__"""
-	def avgRows(self, rows):
-		if len(rows) > 0:
-			return [rows[0]]
- 		else:
+	"""Must return a tuple following the type of rowType in __init__. """
+	def avgRows(self, readings):
+		readings = [r for r in readings if r != None and len(r) == len(self.rowType)]
+		readingsTyped=[]
+		for r in readings:
+			try:	
+				typed =[t(c) for t,c in zip(zip(*self.rowType)[1],r)] 
+				readingsTyped.append(typed)
+			except ValueError:
+				print "Conversion error in line:",repr(r)
+		readings = readingsTyped
+		if not readings: 
 			return None
+		else:
+			strings = readings[0]
+			avg = list(pandas.DataFrame(readings,columns=zip(*self.rowType)[0]).mean())
+			output = []
+			numCol = 0
+			for col in xrange(0,len(strings)):
+				if type(strings[col]) == str:
+					output.append(strings[col])
+				else:
+					output.append(avg[numCol])
+					numCol = numCol + 1
+			return output
 	"""Takes the raw sensor output and converts it to a row. A collection of these will be sent to avgRows."""
 	def toRow(self,reading):
 		row = strptime(reading)
@@ -143,33 +166,6 @@ class SerialSensorReader(SensorReader):
 			readings.append(self.delimiter.join([ts, line]))
 		readings = [x for x in readings if x != None]
 		return readings
-
-	def avgRows(self, readings):
-		readings = [r for r in readings if r != None and len(r) == len(self.rowType)]
-		readingsTyped=[]
-		print readings
-		for r in readings:
-			try:	
-				typed =[t(c) for t,c in zip(zip(*self.rowType)[1],r)] 
-				readingsTyped.append(typed)
-			except ValueError:
-				print "Conversion error in line:",repr(r)
-		readings = readingsTyped
-		if not readings: 
-			return None
-		else:
-			strings = readings[0]
-			avg = list(pandas.DataFrame(readings,columns=zip(*self.rowType)[0]).mean())
-			output = []
-			numCol = 0
-			for col in xrange(0,len(strings)):
-				if type(strings[col]) == str:
-					output.append(strings[col])
-				else:
-					output.append(avg[numCol])
-					numCol = numCol + 1
-			return output
-
 	def toRow(self, reading):
 		row = re.findall(self.delimiterPattern,reading.strip())
 		row = [x.strip() for x in row]
@@ -185,11 +181,11 @@ class MetOneSensorReader(SerialSensorReader):
 		gets = [0,1,3,5,7,9,11,13,14,15,16]
 
 		row = SerialSensorReader.toRow(self,reading)
-		print "toRow:",len(row),":",repr(row)
+		#print "toRow:",len(row),":",repr(row)
 		if len(row) != 17:
 			return None
 		row = [row[i] for i in gets]	
-		print "aftercut:",len(row),":",row
+		#print "aftercut:",len(row),":",row
 		return row
 	def resetSensor(self):
 		SerialSensorReader.resetSensor(self)
@@ -198,24 +194,68 @@ class MetOneSensorReader(SerialSensorReader):
 		self.serialP.write("OP\r")
 		line = readlineR(self.serialP,self.eol)
 		while not seenOP:
-			print repr(line)
+			#print repr(line)
 			if line == "OP\r\n":
 				seenOP = True
 			line = readlineR(self.serialP,self.eol)
 		line2 = readlineR(self.serialP,self.eol).split()    #Status
-		print repr(line2)
+		#print repr(line2)
 		if len(line2)>2 and line2[1] =='S':
 			self.serialP.write("S\r")
 		line3 = readlineR(self.serialP,self.eol).split()    #data
-		print repr(line3)
+		#print repr(line3)
 		print "End Reset"
 		return line
 
-
-
-
 	
+#copied straight from SerialSensorReader inheritence is not fun in the field
+import socket
+class DustTrakReader(SensorReader):
+	def ReadDustTrak(self):
+		"""Code directly from Melissa. First need to find the status of the instrument.  If the instrument is running,
+		it's fair game to get data from it.  Currently, data is being logged every
+		2 minutes so I'll update the database every 2 mintues.  In the future, it might
+		make more sense to poll the instrument heavily and average data ourselves. We
+		can initiate the zero function ourselves.
+		"""
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect((self.HOST, self.PORT))
+		s.sendall("MSTATUS\r")
+		data = s.recv(1024)
+		Received = repr(data).strip("'\\r\\n")
 
+		if Received == 'Running':
+			s.sendall("RDSN\r")
+			data = s.recv(1024)
+			SerialNum = repr(data).strip("'\\r\\n")
+			s.sendall("RMLOGGEDMEAS\r")
+			data = s.recv(1024)
+			#print "data:",repr(data)
+			Received = repr(data).strip("'\\r\\n")
+			RArray = Received.split(',')
+		elif Received == 'Idle':
+			s.sendall("MSTART\r")
+			s.close()
+			return
+		s.close()
+		return RArray[1]
+	def __init__(self,commConfig,sensorName,rowType=(),rateSec=60,db=None,log=None):
+		SensorReader.__init__(self,commConfig,sensorName,rowType,rateSec,db,log)
+		self.eol = "\n"
+		self.delimiterPattern = "\\S+"
+		self.delimiter = " "
+		self.HOST = commConfig["host"]
+		self.PORT = commConfig["port"]
+	def getReadings(self):
+		readings = []
+		ts = str((int(time())/self.rateSec)*self.rateSec)
+		mg_m3= self.ReadDustTrak()
+		return [self.delimiter.join([ts,mg_m3])]
+	def toRow(self, reading):
+		row = re.findall(self.delimiterPattern,reading.strip())
+		row = [x.strip() for x in row]
+		return row
+		
 #Since time is the primary key, I need a sensor ID to identify each sensor. 
 #That can be the sensorname, but in that case the calling program, which will be giving out pointers
 #will have to be aware of sensor ids. That makes sense since why should a data management program worry about metadata
