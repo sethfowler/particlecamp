@@ -41,7 +41,7 @@ def main():
 	sensors_present.setdefault(False)
 	for name,x in cfg.items("sensors_present"):
 		sensors_present[name]=x in ('true','True')
-	db = sqlalchemy.create_engine("sqlite:///%s"%session_id,echo=True)
+	db = sqlalchemy.create_engine("sqlite:///%s"%session_id)
 	sensors = {}
 
 	curSensor = 'aeth'

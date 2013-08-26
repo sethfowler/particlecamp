@@ -61,7 +61,7 @@ class SensorReader(Thread):
 				if avgRow and self.db:
 					cols = zip(*self.rowType)[0]
 					vals = zip(cols,avgRow)
-					self.dbTable.insert().values(vals)
+					self.dbTable.insert().execute(dict(vals))
 				wait = self.rateSec - time()%self.rateSec
 				sleep(wait)
 			sleep(.1)
