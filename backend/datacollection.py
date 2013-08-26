@@ -33,7 +33,7 @@ def main():
 		print "ConfigFile not found."
 		exit()
 	logdir = cfg.get("global","logdir")
-	if not path.exists(logdir)
+	if not path.exists(logdir):
 		print "Creating: \'%s\'"%logdir
 		makedirs(logdir)
 	session_id = cfg.get("global","session_id")
