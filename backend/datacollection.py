@@ -33,7 +33,7 @@ def main():
 		print "ConfigFile not found."
 		exit()
 	logdir = cfg.get("global","logdir")
-	if not path.exists(logdir):
+	if not path.exists(logdir)
 		print "Creating: \'%s\'"%logdir
 		makedirs(logdir)
 	session_id = cfg.get("global","session_id")
@@ -100,7 +100,8 @@ def main():
 		print sensors
 		for name,sensor in sensors.iteritems():
 			sensor.startCollection()
-		time.sleep(60*60*4)
+		while(True):
+			pass
 	except KeyboardInterrupt:
 		print "Exiting"	
 	for name,sensor in sensors.iteritems():
