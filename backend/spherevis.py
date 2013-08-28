@@ -48,8 +48,8 @@ class KonaSphere(Thread):
 			time.sleep(.5)
 			#self.serialP.write(style)
 			self.curStyle=style
-		self.serialP.write(str(intensity))
-		self.serialP.write("\r\n")
+		self.serialP.write("%02d"%intensity)
+		#self.serialP.write("\r\n")
 
 	def printResults(self):
 		while self.serialP.inWaiting():
@@ -78,11 +78,12 @@ class KonaSphere(Thread):
 		time.sleep(10)
 		self.printResults()
 		while self.running:
-			#get current time
+			#get values from 10 minutes ago 
 			ts = int(time.time())
 			rawvalue = 0
 			if dbTable != None:
-				rows = dbTable.select("time>=%d"%(ts-60*10),order_by="time").execute().fetchall()
+				#rows = dbTable.select("time>=%d"%(ts-60*10),order_by="time").execute().fetchall()
+				rows = dbTable.select(order_by="time").execute().fetchall()
 				if rows != None and len(rows) > 1:
 					print "row_0:",rows[-1],":"
 					rawvalue = float(rows[-1][self.sensorVariable])
