@@ -14,10 +14,10 @@ from ConfigParser import SafeConfigParser
 
 CFGFILE="spherevis.cfg"
 class KonaSphere(Thread):
-	def __init__(self,commConfig,updateRate,sensorName,sensorVariable,linfcn=((0,'d',0),(.5,'d',70),(1,'d',99)),dbTable=None):
+	def __init__(self,commConfig,delaySec,sensorName,sensorVariable,linfcn=((0,'d',0),(.5,'d',70),(1,'d',99)),dbTable=None):
 		Thread.__init__(self,name=sensorName)
 		self.commConfig = commConfig
-		self.updateRate=updateRate
+		self.delaySec=delaySec
 		self.sensorName = sensorName 
 		self.sensorVariable = sensorVariable
 		self.dbTable = dbTable
@@ -53,7 +53,7 @@ class KonaSphere(Thread):
 
 	def printResults(self):
 		while self.serialP.inWaiting():
-			print self.serialP.readline().strip()
+			print self.serialP.readline().strip(),
 
 	def getStyleScale(self,rawvalue):
 		rawVals,styles,scaledVals=zip(*self.linfcn)
@@ -75,9 +75,15 @@ class KonaSphere(Thread):
 		self.reset()
 		print "Shutting off display"
 		self.setDisplayOff()
-		time.sleep(10)
+		time.sleep(5)
 		self.printResults()
 		while self.running:
+			#sleep until delaySec  seconds after the minute
+			nextTime = int(time.time()/60+1)*60+self.delaySec
+			sleepTime = nextTime - time.time()
+			print "sleeping:",sleepTime
+			time.sleep(sleepTime)
+
 			#get values from 10 minutes ago 
 			ts = int(time.time())
 			rawvalue = 0
@@ -96,7 +102,6 @@ class KonaSphere(Thread):
 			print "sensor:%s,variable:%s,rawvalue:%f,style:%s,scaledvalue:%d"%(self.sensorName,self.sensorVariable,rawvalue,style,scaledvalue)
 			self.sendCommand(style,scaledvalue)
 			self.printResults()
-			time.sleep(self.updateRate)
 		self.disconnect()
 
 if __name__ == "__main__":
@@ -125,8 +130,8 @@ if __name__ == "__main__":
 			linfcn=eval(cfg.get(name,"pwlinfcn"))
 			port=cfg.get(name,"port")
 			baud=cfg.get(name,"baud")
-			updateRate=float(cfg.get(name,"rateSec"))
-			commConfig = {"port":port,"baudrate":int(baud),"timeout":int(updateRate)+10}
+			delaySec=float(cfg.get(name,"delaySec"))
+			commConfig = {"port":port,"baudrate":int(baud),"timeout":int(70)}
 			dbTable = None
 			if dbName == "None":
 				pass
@@ -135,7 +140,7 @@ if __name__ == "__main__":
 				metadata = sq.MetaData(bind=db)
 				metadata.reflect(db)
 				dbTable = metadata.tables[sensorName]
-			spheres.append(KonaSphere(commConfig,updateRate,sensorName,sensorVariable,linfcn,dbTable))
+			spheres.append(KonaSphere(commConfig,delaySec,sensorName,sensorVariable,linfcn,dbTable))
 
 		for sphere in spheres:
 			sphere.start()
