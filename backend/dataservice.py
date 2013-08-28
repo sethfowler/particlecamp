@@ -233,12 +233,12 @@ class DustTrakReader(SensorReader):
 			#print "data:",repr(data)
 			Received = repr(data).strip("'\\r\\n")
 			RArray = Received.split(',')
+			s.close()
+			return RArray[1]
 		elif Received == 'Idle':
 			s.sendall("MSTART\r")
 			s.close()
-			return
-		s.close()
-		return RArray[1]
+			return None
 	def __init__(self,commConfig,sensorName,rowType=(),rateSec=60,db=None,log=None):
 		SensorReader.__init__(self,commConfig,sensorName,rowType,rateSec,db,log)
 		self.eol = "\n"
@@ -250,7 +250,10 @@ class DustTrakReader(SensorReader):
 		readings = []
 		ts = str((int(time())/self.rateSec)*self.rateSec)
 		mg_m3= self.ReadDustTrak()
-		return [self.delimiter.join([ts,mg_m3])]
+		if mg_m3 == None:
+			return []
+		else:
+			return [self.delimiter.join([ts,mg_m3])]
 	def toRow(self, reading):
 		row = re.findall(self.delimiterPattern,reading.strip())
 		row = [x.strip() for x in row]

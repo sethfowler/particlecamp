@@ -26,21 +26,21 @@ class KonaSphere(Thread):
 		self.running=True
 
 	def connect(self):
-		#TODO need to initialize style
-		#self.serialP = serial.Serial(**commConfig) 
-		pass
+		self.serialP = serial.Serial(**commConfig) 
 
 	def disconnect(self):
-		#self.serialP.close()
-		pass
+		self.serialP.close()
+	def reset(self):
+		self.serialP.setDTR(True)
+		time.sleep(5)
+		self.serialP.setDTR(False)
 
 	def sendCommand(self,style,intensity):
 		if style == self.curStyle:
-			#self.serialP.write(style)
-			pass
+			self.serialP.write(style)
 		else:
 			print "Changing style"
-			#self.serialP.setDTR(True)
+			self.serialP.setDTR(True)
 			time.sleep(.25)
 			#self.serialP.setDTR(False)
 			time.sleep(.25)
@@ -48,8 +48,12 @@ class KonaSphere(Thread):
 			time.sleep(.5)
 			#self.serialP.write(style)
 			self.curStyle=style
-		#self.serialP.write(str(intensity))
-		#self.serialP.write("\r")
+		self.serialP.write(str(intensity))
+		self.serialP.write("\r\n")
+
+	def printResults(self):
+		while self.serialP.inWaiting():
+			print self.serialP.readline().strip()
 
 	def getStyleScale(self,rawvalue):
 		rawVals,styles,scaledVals=zip(*self.linfcn)
@@ -66,21 +70,23 @@ class KonaSphere(Thread):
 		self.sendCommand(self.curStyle,0) #assumes that curStyle has 0 as a valid shutoff value
 
 	def run(self):
+		self.connect()
+		print "Reseting"
+		self.reset()
+		print "Shutting off display"
+		self.setDisplayOff()
+		time.sleep(10)
+		self.printResults()
 		while self.running:
 			#get current time
 			ts = int(time.time())
 			rawvalue = 0
 			if dbTable != None:
-				#get last 10 minutes of entries
-				#TODO 10 hours
-				#"%d<=time and time<=%d"%(ts,ts+60*10*60)
-				rows = dbTable.select(order_by="time").execute().fetchall()
-				print self.dbTable.columns
+				rows = dbTable.select("time>=%d"%(ts-60*10),order_by="time").execute().fetchall()
 				if rows != None and len(rows) > 1:
 					print "row_0:",rows[-1],":"
 					rawvalue = float(rows[-1][self.sensorVariable])
 				else:
-					#shut it off
 					print "No entry found. Shutting off."
 					self.setDisplayOff()
 			else:
@@ -88,7 +94,9 @@ class KonaSphere(Thread):
 			style,scaledvalue=self.getStyleScale(rawvalue)
 			print "sensor:%s,variable:%s,rawvalue:%f,style:%s,scaledvalue:%d"%(self.sensorName,self.sensorVariable,rawvalue,style,scaledvalue)
 			self.sendCommand(style,scaledvalue)
+			self.printResults()
 			time.sleep(self.updateRate)
+		self.disconnect()
 
 if __name__ == "__main__":
 	spheres = []
@@ -102,6 +110,10 @@ if __name__ == "__main__":
 
 		#get sphere list
 		spherenames = sys.argv[1:] #cfg.get("global","spheres").split(",")
+		if len(sys.argv) <= 1:
+			print "Usage: %s"%(sys.argv[0]), "clustername1 [clustername2 ...]"
+			print "Clusters are configured and specified in spherevis.cfg"
+			exit()
 		dbName = cfg.get("global","db")
 
 		for name in spherenames:
@@ -113,7 +125,7 @@ if __name__ == "__main__":
 			port=cfg.get(name,"port")
 			baud=cfg.get(name,"baud")
 			updateRate=float(cfg.get(name,"rateSec"))
-			commConfig = {"port":port,"baud":int(baud),"timeout":int(updateRate)+10}
+			commConfig = {"port":port,"baudrate":int(baud),"timeout":int(updateRate)+10}
 			dbTable = None
 			if dbName == "None":
 				pass
