@@ -24,12 +24,14 @@ class KonaSphere(Thread):
 		self.linfcn = linfcn
 		self.curStyle = linfcn[0][1]
 		self.running=True
+		self.serialP = None
 
 	def connect(self):
 		self.serialP = serial.Serial(**commConfig) 
 
 	def disconnect(self):
-		self.serialP.close()
+		if self.serialP:
+			self.serialP.close()
 	def reset(self):
 		self.serialP.setDTR(True)
 		time.sleep(5)

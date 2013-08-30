@@ -88,7 +88,16 @@ def main():
 	if sensors_present.get('ucpc'):
 		commConfig = {'port':cfg.get(curSensor,'port'),'timeout':cfg.getint('global','timeout'),'baudrate':115200}
 		logFile = mklogfile(curSensor)
-		rowType = (('dayucpc',str),('timeucpc',str),('UNK1',int),('CN',float),('ST',int),('LT',float),('CNT',int),('PM',int),('RP',int))
+		rowType = (
+				('dayucpc',str),
+				('timeucpc',str),
+				('UNK1',int),
+				('CN',float),
+				('ST',int),
+				('LT',float),
+				('CNT',int),
+				('PM',int),
+				('RP',int))
 		rateSec = int(cfg.get(curSensor,"rateSec"))
 		sensors[curSensor] = SerialSensorReader(commConfig=commConfig,sensorName=curSensor,rowType=rowType,rateSec=rateSec,db=db,log=logFile)
 		sensors[curSensor].delimiterPattern = "[^,]+"#"[\d.-e]+"

@@ -61,8 +61,13 @@ class SensorReader(Thread):
 				if avgRow and self.db:
 					cols = zip(*self.rowType)[0]
 					vals = zip(cols,avgRow)
-					self.dbTable.insert().execute(dict(vals))
+					try:
+						self.dbTable.insert().execute(dict(vals))
+					except Exception:
+						print "database locked."
 				wait = self.rateSec - time()%self.rateSec
+				if wait <0:
+					wait = self.rateSec
 				sleep(wait)
 			sleep(.1)
 		print self.sensorName, " ending."
