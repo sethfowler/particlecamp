@@ -1,0 +1,134 @@
+29-aug-13  08:46:00  Measurements ended
+---
+.                   Number of lamps (L) = 1
+.                   Filter running time = 10.8 hours
+.             Total airflow this filter = 2.11 cubic meters
+.
+Report for lamp 1 (880 nm):
+. Ending voltages: sen(beam) =    .317  sen(zero) =   0.021
+.                  ref(beam) =    .838  ref(zero) =   0.021
+. Optical attenuation of filter deposit = 150
+.  Total aerosol black carbon on filter = 4519 ng
+Mean aerosol black carbon concentration = 2135 ng/m3
+---
+The reference beam showed lamp intensity fluctuations of 199 ppm.
+---
+Disk space = 3.014246E+07 bytes free: One entry at every 1 minutes.
+There is space for 6280 hours ( 262 days) more data
+---
+29-aug-13  08:46:00  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+29-aug-13  08:53:54  Measurements started
+Starting voltages:
+.           sen(zero) =   0.021 ref(zero) =   0.021
+.  Lamp 1 (880 nm): sen(beam) =   1.480 ref(beam) =    .826
+
+---
+Disk space = 3.008051E+07 bytes free: One entry at every 1 minutes.
+There is space for 6267 hours ( 261 days) more data
+---
+29-aug-13  10:50:33  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+29-aug-13  10:52:05  
+=============================================================
+Automatic re-start
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+29-aug-13  10:57:54  Measurements started
+Starting voltages:
+.           sen(zero) =   0.021 ref(zero) =   0.021
+.  Lamp 1 (880 nm): sen(beam) =   1.509 ref(beam) =    .845
+
+---
+Disk space = 3.005491E+07 bytes free: One entry at every 1 minutes.
+There is space for 6261 hours ( 261 days) more data
+---
+29-aug-13  16:19:38  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+29-aug-13  16:21:05  
+=============================================================
+Automatic re-start
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+29-aug-13  16:26:54  Measurements started
+Starting voltages:
+.           sen(zero) =   0.021 ref(zero) =   0.021
+.  Lamp 1 (880 nm): sen(beam) =   1.519 ref(beam) =    .853
+
+---
+Disk space = 3.005133E+07 bytes free: One entry at every 1 minutes.
+There is space for 6261 hours ( 261 days) more data
+---
+29-aug-13  17:13:37  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+29-aug-13  17:15:05  
+=============================================================
+Automatic re-start
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+29-aug-13  17:20:54  Measurements started
+Starting voltages:
+.           sen(zero) =   0.021 ref(zero) =   0.021
+.  Lamp 1 (880 nm): sen(beam) =   1.567 ref(beam) =    .891
+
+---
+29-aug-13  23:43:00  Measurements ended
+---
+.                   Number of lamps (L) = 1
+.                   Filter running time = 6.36 hours
+.             Total airflow this filter = 1.28 cubic meters
+.
+Report for lamp 1 (880 nm):
+. Ending voltages: sen(beam) =    .365  sen(zero) =   0.021
+.                  ref(beam) =    .900  ref(zero) =   0.021
+. Optical attenuation of filter deposit = 150
+.  Total aerosol black carbon on filter = 4523 ng
+Mean aerosol black carbon concentration = 3542 ng/m3
+---
+The reference beam showed lamp intensity fluctuations of 174 ppm.
+---
+Disk space = 3.005133E+07 bytes free: One entry at every 1 minutes.
+There is space for 6261 hours ( 261 days) more data
+---
+29-aug-13  23:43:00  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+29-aug-13  23:50:54  Measurements started
+Starting voltages:
+.           sen(zero) =   0.021 ref(zero) =   0.021
+.  Lamp 1 (880 nm): sen(beam) =   1.674 ref(beam) =    .909
+
+---

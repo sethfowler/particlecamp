@@ -1,0 +1,53 @@
+--- AE-SETUP.TXT ---
+Created : 30.08.2013 16:31:29
+.
+Instrument serial number: 227
+Software version: 084z3
+Instrument type (0..U (1X), 1..UV+LED (2X), 2..7xLED (3X)): 1 
+Instrument (Portable/Stationary) : Stationary
+Selected Pump Flow : 2.0 LPM
+Flow scale factor : 1.47 LPM/V
+Flow zero : .088V
+Date format (0=US, 1=EU): 1 
+Tape saver: 0 
+Spots per advance: 1 
+Filter change interval: 0 
+Maximum attenuation: 150 
+Over old data: 1 
+Warm up wait: 0 
+Spot size: Standard Range
+BC Unit (0..ng, 1..ug): 0 
+.
+Serial comm. mode (1..OFF, 2..Dataline, 3..Gesytec): 2 
+Serial communication parameters:
+   Speed(bps) : 9600 
+   Data bits  : 7 
+   Parity bits:N
+   Stop bits  : 1 
+.
+Gesytec parameters:
+   Network Scale Factor: 10 
+   Instrument ID for Gesytec:333
+.
+Dataline parameters:
+Alarm mode (0..Analog out, 1..Alarm): 0 
+Alarm ON/OFF : 1 
+Alarm value limit: 10 
+Alarm channel selection (channel number): 1 
+.
+Data format (0..Extended, 1..Compressed): 0 
+.
+UV channel OFF (0..UV ch. ON, 1..UV ch. OFF): 1 
+.
+Sigma values:
+   Sigma  1  : 16.6 
+   Sigma  2  : 39.5 
+   Sigma  3  : 0 
+   Sigma  4  : 0 
+   Sigma  5  : 0 
+   Sigma  6  : 0 
+   Sigma  7  : 0 
+Volumetric unit settings:
+   Volumetric units (0..Standard,  1..Volumetric): 0 
+   Air Pressure(mbars): 1013 
+   Temperature(C): 20 

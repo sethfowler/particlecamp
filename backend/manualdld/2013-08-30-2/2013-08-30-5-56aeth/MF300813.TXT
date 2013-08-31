@@ -1,0 +1,134 @@
+30-aug-13  11:06:00  Measurements ended
+---
+.                   Number of lamps (L) = 1
+.                   Filter running time = 11.25 hours
+.             Total airflow this filter = 2.2 cubic meters
+.
+Report for lamp 1 (880 nm):
+. Ending voltages: sen(beam) =    .355  sen(zero) =   0.021
+.                  ref(beam) =    .884  ref(zero) =   0.021
+. Optical attenuation of filter deposit = 150
+.  Total aerosol black carbon on filter = 4519 ng
+Mean aerosol black carbon concentration = 2055 ng/m3
+---
+The reference beam showed lamp intensity fluctuations of 181 ppm.
+---
+Disk space = 3.001907E+07 bytes free: One entry at every 1 minutes.
+There is space for 6254 hours ( 261 days) more data
+---
+30-aug-13  11:06:00  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+30-aug-13  11:13:54  Measurements started
+Starting voltages:
+.           sen(zero) =   0.021 ref(zero) =   0.021
+.  Lamp 1 (880 nm): sen(beam) =   1.626 ref(beam) =    .900
+
+---
+Disk space = 2.99607E+07 bytes free: One entry at every 1 minutes.
+There is space for 6242 hours ( 260 days) more data
+---
+30-aug-13  11:59:19  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+30-aug-13  12:01:05  
+=============================================================
+Automatic re-start
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+30-aug-13  12:06:54  Measurements started
+Starting voltages:
+.           sen(zero) =   0.021 ref(zero) =   0.021
+.  Lamp 1 (880 nm): sen(beam) =   1.656 ref(beam) =    .904
+
+---
+Disk space = 2.995251E+07 bytes free: One entry at every 1 minutes.
+There is space for 6240 hours ( 260 days) more data
+---
+30-aug-13  13:49:38  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+30-aug-13  13:51:05  
+=============================================================
+Automatic re-start
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+30-aug-13  13:56:54  Measurements started
+Starting voltages:
+.           sen(zero) =   0.021 ref(zero) =   0.021
+.  Lamp 1 (880 nm): sen(beam) =   1.606 ref(beam) =    .874
+
+---
+Disk space = 2.99433E+07 bytes free: One entry at every 1 minutes.
+There is space for 6238 hours ( 260 days) more data
+---
+30-aug-13  15:57:53  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+30-aug-13  16:00:05  
+=============================================================
+Automatic re-start
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+Disk space = 2.994278E+07 bytes free: One entry at every 1 minutes.
+There is space for 6238 hours ( 260 days) more data
+---
+30-aug-13  16:33:06  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+30-aug-13  16:35:05  
+=============================================================
+Automatic re-start
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+30-aug-13  16:40:54  Measurements started
+Starting voltages:
+.           sen(zero) =   0.021 ref(zero) =   0.021
+.  Lamp 1 (880 nm): sen(beam) =   1.574 ref(beam) =    .857
+
+---
+30-aug-13  16:52:13  Measurements ended
+---
+.                   Number of lamps (L) = 1
+.                   Filter running time = .18 hours
+.             Total airflow this filter = .03 cubic meters
+.
+Report for lamp 1 (880 nm):
+. Ending voltages: sen(beam) =   1.557  sen(zero) =   0.021
+.                  ref(beam) =    .862  ref(zero) =   0.021
+. Optical attenuation of filter deposit = 1
+.  Total aerosol black carbon on filter = 37 ng
+Mean aerosol black carbon concentration = 1123 ng/m3
+---
+The reference beam showed lamp intensity fluctuations of 672 ppm.
+---
+Disk space = 2.994278E+07 bytes free: One entry at every 1 minutes.
+There is space for 6238 hours ( 260 days) more data
+---

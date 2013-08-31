@@ -1,0 +1,22 @@
+Disk space = 3.095552E+07 bytes free: One entry at every 1 minutes.
+There is space for 6449 hours ( 269 days) more data
+---
+19-aug-13  17:36:04  Tape feeder mechanism advancing for 1 spot(s).
+
+---
+19-aug-13  17:38:05  
+=============================================================
+Automatic re-start
+=============================================================
+---
+MAGEE SCIEN.
+AETHALOMETER
+---
+Aethalometer No. 227
+---
+19-aug-13  17:43:54  Measurements started
+Starting voltages:
+.           sen(zero) =   0.021 ref(zero) =   0.021
+.  Lamp 1 (880 nm): sen(beam) =   1.918 ref(beam) =    .904
+
+---
