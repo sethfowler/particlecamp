@@ -40,9 +40,7 @@ class SensorReader(Thread):
 		self.db = db
 		self.sensorName = sensorName
 		self.rowType = (("time",int),) + rowType
-		#TODO kludge! below
-		self.log = log.name
-		log.close()
+		self.log = log
 		self.end = False
 
 	def run(self):
@@ -58,21 +56,13 @@ class SensorReader(Thread):
 				logEntry = "||".join(
 						[timeStamp,self.sensorName,"%s"%repr(avgRow)] + readingsStr) +"\n"
 				if self.log:
-					f = file(self.log,"w+")
-					f.write(logEntry)
-					f.close()
-					#self.log.write(logEntry)
-					#self.log.flush()
+						  self.log.write(logEntry)
+						  self.log.flush()
 				if avgRow and self.db:
 					cols = zip(*self.rowType)[0]
 					vals = zip(cols,avgRow)
-					try:
-						self.dbTable.insert().execute(dict(vals))
-					except Exception:
-						print "database locked."
+					self.dbTable.insert().execute(dict(vals))
 				wait = self.rateSec - time()%self.rateSec
-				if wait <0:
-					wait = self.rateSec
 				sleep(wait)
 			sleep(.1)
 		print self.sensorName, " ending."
@@ -90,8 +80,8 @@ class SensorReader(Thread):
 		sleep(self.rateSec+1)
 		#self.join(timeout = (self.rateSec+1))
 		self.stopSensor()
-		#if self.log:
-		#	self.log.flush()
+		if self.log:
+			self.log.flush()
 
 	def toDBType(self,ty):
 		if ty == int:
@@ -243,12 +233,12 @@ class DustTrakReader(SensorReader):
 			#print "data:",repr(data)
 			Received = repr(data).strip("'\\r\\n")
 			RArray = Received.split(',')
-			s.close()
-			return RArray[1]
 		elif Received == 'Idle':
 			s.sendall("MSTART\r")
 			s.close()
-			return None
+			return
+		s.close()
+		return RArray[1]
 	def __init__(self,commConfig,sensorName,rowType=(),rateSec=60,db=None,log=None):
 		SensorReader.__init__(self,commConfig,sensorName,rowType,rateSec,db,log)
 		self.eol = "\n"
@@ -260,10 +250,7 @@ class DustTrakReader(SensorReader):
 		readings = []
 		ts = str((int(time())/self.rateSec)*self.rateSec)
 		mg_m3= self.ReadDustTrak()
-		if mg_m3 == None:
-			return []
-		else:
-			return [self.delimiter.join([ts,mg_m3])]
+		return [self.delimiter.join([ts,mg_m3])]
 	def toRow(self, reading):
 		row = re.findall(self.delimiterPattern,reading.strip())
 		row = [x.strip() for x in row]
